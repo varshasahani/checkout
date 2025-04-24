@@ -17,15 +17,6 @@ def products_view(request):
 
     return render(request, 'products.html',{'products':mapped_products})
 
-def map_products_quantity(cart_products,products):
-    mapped_products = []
-    for product_id,quantity in cart_products.items():
-        for product in products:
-            if product['id'] == product_id:
-                product['quantity'] = quantity
-                mapped_products.append(product)
-    return mapped_products
-
 @csrf_exempt
 def add_to_cart(request):
     data = json.loads(request.body)
@@ -44,8 +35,6 @@ def add_to_cart(request):
             cart.save()
     return JsonResponse({'success': True, 'cart': cart_items})
 
-
-
 def cart_details(request):
     if(request.user.is_authenticated):
         user = User.objects.get(id=request.user.id)
@@ -63,12 +52,10 @@ def get_price(product_id, quantity):
     rules = product_discounts.get(product_id, [])
     total_price = 0
     remaining_quantity = quantity
-
     for rule in sorted(rules, key=lambda x: -x['quantity']):
         count = remaining_quantity // rule['quantity']
         total_price += count * rule['price']
         remaining_quantity %= rule['quantity']
-
     return total_price
 
 def calculate_total_price(products):
@@ -77,3 +64,12 @@ def calculate_total_price(products):
         for product, quantity in products.items():
             total_price += get_price(product, quantity)
         return total_price
+
+def map_products_quantity(cart_products,products):
+    mapped_products = []
+    for product_id,quantity in cart_products.items():
+        for product in products:
+            if product['id'] == product_id:
+                product['quantity'] = quantity
+                mapped_products.append(product)
+    return mapped_products

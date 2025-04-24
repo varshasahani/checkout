@@ -14,6 +14,11 @@ product_discounts = {
     "D": [{"quantity": 1, "price": 15.00}],
 }
 
+products=[{'id':'A','name':"A",'price':50.00,'quantity':0},
+                {'id':'B','name':"B",'price':30.00,'quantity':0},
+                {'id':'C','name':"C",'price':20.00,'quantity':0},
+                {'id':'D','name':"D",'price':15.00,'quantity':0},]
+
 # Create your models here.
 class Cart(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,related_name="cart")

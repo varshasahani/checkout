@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    {% for product in products %}
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{product.name}}--{{product.id}}</h5>
+            <h6 class="card-text">Price:{{product.price}}</h6>
+            <p class="card-text"></p>
+            <div class="d-flex align-items-center">
+                <!-- Quantity Controls -->
+                <button class="btn btn-outline-secondary btn-sm me-2" onclick="decreaseQuantity('{{ product.id }}')">-</button>
+                <input type="number" id="quantity-{{ product.id }}" class="form-control form-control-sm text-center" value={{product.quantity}} min="0" style="width: 60px;" readonly>
+                <button class="btn btn-outline-secondary btn-sm ms-2" onclick="increaseQuantity('{{ product.id }}')">+</button>
+            </div>
+            <button class="btn btn-primary mt-2" onclick="addToCart('{{ product.id }}')" disabled>Add to Cart</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      <a class="btn btn-success mt-3" href="{% url 'cart_details' %}">Go to Cart</a>
+  </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    function increaseQuantity(productId){
+    const quantityInput=document.getElementById('quantity-'+productId)
+    let currentQuantity=parseInt(quantityInput.value)
+    currentQuantity++
+    quantityInput.value=currentQuantity
+    if(currentQuantity>0){
+        const addToCartButton=document.querySelector('button[onclick="addToCart(\''+productId+'\')"]')
+        addToCartButton.removeAttribute('disabled')
+    }
+    else{
+        const addToCartButton=document.querySelector('button[onclick="addToCart(\''+productId+'\')"]')
+        addToCartButton.setAttribute('disabled', 'true')
+    }
+}
+
+function decreaseQuantity(productId){
+    const quantityInput=document.getElementById('quantity-'+productId)
+    let currentQuantity=parseInt(quantityInput.value)
+    if(currentQuantity>0){
+        currentQuantity--
+        quantityInput.value=currentQuantity
+    }
+    if(currentQuantity>0){
+        const addToCartButton=document.querySelector('button[onclick="addToCart(\''+productId+'\')"]')
+        addToCartButton.removeAttribute('disabled')
+    }
+    else{
+        const addToCartButton=document.querySelector('button[onclick="addToCart(\''+productId+'\')"]')
+        addToCartButton.setAttribute('disabled', 'true')
+    }
+}
+
+function addToCart(productId){
+    const quantityInput=document.getElementById('quantity-'+productId)
+    
+    let currentQuantity=parseInt(quantityInput.value)
+    fetch('/cart/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: currentQuantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('productId', productId)
+        if(data.success){
+            alert('Product added to cart')
+        }else{
+            alert('Failed to add product to cart')
+        }
+    })
+}
+
+
+</script>
+{% endblock %}

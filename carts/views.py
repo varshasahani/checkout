@@ -22,7 +22,6 @@ def add_to_cart(request):
     data = json.loads(request.body)
     product_id = str(data.get('product_id'))
     quantity = int(data.get('quantity', 1))
-
     cart_items = request.session.get('cart', {})
     cart_items[product_id] = quantity
     request.session['cart'] = cart_items
